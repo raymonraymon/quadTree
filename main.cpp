@@ -2,11 +2,14 @@
 //origin in java,modify it to c++11;
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
+#include<algorithm>
 using namespace std;
 class Rectangle
 {
 
-private: float X;
+private: float X;//leftDown Corner
 		 float Y;
 		 float width;
 		 float height;
@@ -75,15 +78,15 @@ public:	void clear()
 	}
 }
 private:  void split() {
-	int subWidth = (int)(bounds.getWidth() / 2);
-	int subHeight = (int)(bounds.getHeight() / 2);
-	int x = (int)bounds.getX();
-	int y = (int)bounds.getY();
+	float subWidth = bounds.getWidth() / 2.;
+	float subHeight = bounds.getHeight() / 2.;
+	float x = bounds.getX();
+	float y = bounds.getY();
 
-	nodes[0] = new Quadtree(level + 1, Rectangle(x + subWidth, y, subWidth, subHeight));
-	nodes[1] = new Quadtree(level + 1, Rectangle(x, y, subWidth, subHeight));
-	nodes[2] = new Quadtree(level + 1, Rectangle(x, y + subHeight, subWidth, subHeight));
-	nodes[3] = new Quadtree(level + 1, Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
+	nodes[0] = new Quadtree(level + 1, Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
+	nodes[1] = new Quadtree(level + 1, Rectangle(x, y + subHeight, subWidth, subHeight));
+	nodes[2] = new Quadtree(level + 1, Rectangle(x, y, subWidth, subHeight));
+	nodes[3] = new Quadtree(level + 1, Rectangle(x + subWidth , y, subWidth, subHeight));
 }
 
 /*
@@ -171,36 +174,58 @@ public: vector<Rectangle> retrieve(vector<Rectangle>& returnObjects, Rectangle p
 			for (size_t i=0;i<objects.size();i++)
 			{
 				returnObjects.push_back(objects[i]);
-			}
-			
-
+			}			
 			return returnObjects;
 		}
 };
 int main()
 {
-	Rectangle bound = Rectangle(300., 300., 100., 100.);
+	Rectangle bound = Rectangle(0., 0., 100., 100.);
 	Quadtree quad = Quadtree(0, bound);
 	quad.clear();
 	vector<Rectangle> allObjects;
-	for (int j = 10; j < 100; j = j + 20)
-		for (int jj = 10; jj < 100; jj = jj + 20)
-	{
-			Rectangle b = Rectangle(j, jj, 2, 2);
-			allObjects.push_back(b);
-	}
+
+	srand((int)time(0));
+
 	
+	for (int j = 10; j < 100; j = j + 5) {
+		for (int jj = 10; jj < 100; jj = jj + 5)
+		{			
+			int m = rand() % 100;
+			int n = rand() % 100;
+			Rectangle b = Rectangle(m, n, 2, 2);
+			//Rectangle b = Rectangle(j, jj, 2, 2);
+			allObjects.push_back(b);
+		}
+	}
+
 	for (int i = 0; i < allObjects.size(); i++) {
 		quad.insert(allObjects[i]);
 	}
 	vector<Rectangle> returnObjects;
-	for (int i = 0; i < allObjects.size(); i++) {
-		returnObjects.clear();
-		quad.retrieve(returnObjects, allObjects[i]);
 
+	vector<Rectangle> testObjects;
+	Rectangle b = Rectangle(12.5, 12.5, 1, 1);
+	testObjects.push_back(b);
+
+	for (int j = 10; j < 100; j = j + 20){
+		for (int jj = 10; jj < 100; jj = jj + 20)
+		{
+			Rectangle b = Rectangle(j, jj, 2, 2);
+			testObjects.push_back(b);
+		}
+	}
+
+	for (int i = 0; i < testObjects.size(); i++) {
+		returnObjects.clear();
+		quad.retrieve(returnObjects, testObjects[i]);
+		vector<float> Vecdis;
 		for (int x = 0; x < returnObjects.size(); x++) {
 			// Run collision detection algorithm between objects
+			float dis = sqrt((returnObjects[x].getX() - testObjects[i].getX())*(returnObjects[x].getX() - testObjects[i].getX()) + (returnObjects[x].getY() - testObjects[i].getY())*(returnObjects[x].getY() - testObjects[i].getY()));
+			Vecdis.push_back(dis);
 		}
+		sort(Vecdis.begin(), Vecdis.end());
 	}
 	return 0;
 }
