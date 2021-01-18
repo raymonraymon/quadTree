@@ -107,19 +107,19 @@ private: int getIndex(Rectangle pRect) {
 			  // Object can completely fit within the left quadrants
 			  if (pRect.getX() < verticalMidpoint && pRect.getX() + pRect.getWidth() < verticalMidpoint) {
 				  if (topQuadrant) {
-					  index = 1;
+					  index = 2;
 				  }
 				  else if (bottomQuadrant) {
-					  index = 2;
+					  index = 1;
 				  }
 			  }
 			  // Object can completely fit within the right quadrants
 			  else if (pRect.getX() > verticalMidpoint) {
 				  if (topQuadrant) {
-					  index = 0;
+					  index = 3;
 				  }
 				  else if (bottomQuadrant) {
-					  index = 3;
+					  index = 0;
 				  }
 			  }
 			  return index;
@@ -226,6 +226,8 @@ int main()
 			Vecdis.push_back(dis);
 		}
 		sort(Vecdis.begin(), Vecdis.end());
+		cout << i<<":"<<Vecdis[0] << endl;
 	}
+	system("pause");
 	return 0;
 }
