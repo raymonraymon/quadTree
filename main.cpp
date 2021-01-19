@@ -147,6 +147,13 @@ private: vector<int> getIndex(Rectangle pRect) {
 				  indexes.push_back(0);//right in the middle
 				  indexes.push_back(3);
 			  }
+			  if (startIsWest && endIsEast && !startIsNorth && !endIsSouth)
+			  {
+				  indexes.push_back(0);//in the middle
+				  indexes.push_back(1);
+				  indexes.push_back(2);
+				  indexes.push_back(3);
+			  }
 			  return indexes;
 		  }
 /*
