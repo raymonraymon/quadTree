@@ -94,50 +94,77 @@ private:  void split() {
  * object cannot completely fit within a child node and is part
  * of the parent node
  */
-private: int getIndex(Rectangle pRect) {
-			  int index = -1;
+private: vector<int> getIndex(Rectangle pRect) {
+			  vector<int> indexes;
+				
 			  double verticalMidpoint = bounds.getX() + (bounds.getWidth() / 2);
 			  double horizontalMidpoint = bounds.getY() + (bounds.getHeight() / 2);
 
-			  // Object can completely fit within the top quadrants
-			  bool topQuadrant = (pRect.getY() < horizontalMidpoint && pRect.getY() + pRect.getHeight() < horizontalMidpoint);
-			  // Object can completely fit within the bottom quadrants
-			  bool bottomQuadrant = (pRect.getY() > horizontalMidpoint);
+			  bool startIsNorth = pRect.getY() > horizontalMidpoint;
+			  bool startIsWest = pRect.getX() < verticalMidpoint;
+			  bool endIsEast = pRect.getX() + pRect.getWidth() > verticalMidpoint;
+			  bool endIsSouth = pRect.getY() + pRect.getHeight() < horizontalMidpoint;
 
-			  // Object can completely fit within the left quadrants
-			  if (pRect.getX() < verticalMidpoint && pRect.getX() + pRect.getWidth() < verticalMidpoint) {
-				  if (topQuadrant) {
-					  index = 2;
+			  
+			  if (startIsNorth) {
+				  if (startIsWest && !endIsEast)
+				  {
+					  indexes.push_back(1);//top-left quad
 				  }
-				  else if (bottomQuadrant) {
-					  index = 1;
-				  }
-			  }
-			  // Object can completely fit within the right quadrants
-			  else if (pRect.getX() > verticalMidpoint) {
-				  if (topQuadrant) {
-					  index = 3;
-				  }
-				  else if (bottomQuadrant) {
-					  index = 0;
+				  else if (!startIsWest && endIsEast)
+				  {
+					  indexes.push_back(0);//top-right quad
+				  }	
+				  else
+				  {
+					  indexes.push_back(0);//top in the middle
+					  indexes.push_back(1);
 				  }
 			  }
-			  return index;
+
+			  if (endIsSouth) {
+				  if (startIsWest && !endIsEast)
+				  {
+					  indexes.push_back(2);//bottom-left quad
+				  }
+				  else if (!startIsWest && endIsEast)
+				  {
+					  indexes.push_back(3);//bottom-right quad
+				  }
+				  else
+				  {
+					  indexes.push_back(2);//bottom in the middle
+					  indexes.push_back(3);
+				  }
+			  }
+			  if (!startIsNorth && startIsWest && !endIsSouth)
+			  {
+				  indexes.push_back(1);//left in the middle
+				  indexes.push_back(2);
+			  }
+			  if (!startIsWest && !startIsNorth && !endIsSouth)
+			  {
+				  indexes.push_back(0);//right in the middle
+				  indexes.push_back(3);
+			  }
+			  return indexes;
 		  }
-		 /*
+/*
  * Insert the object into the quadtree. If the node
  * exceeds the capacity, it will split and add all
  * objects to their corresponding nodes.
  */
 public: void insert(Rectangle pRect) {
 			 if (nodes[0] != 0) {
-				 int index = getIndex(pRect);
-
-				 if (index != -1) {
-					 nodes[index]->insert(pRect);
-
-					 return;
+				 vector<int> index = getIndex(pRect);
+				 for (int i =0;i<index.size();i++)
+				 {
+					 if (index[i] != -1) {
+						 nodes[index[i]]->insert(pRect);
+						 return;
+					 }
 				 }
+				 
 			 }
 
 			 objects.push_back(pRect);
@@ -147,18 +174,23 @@ public: void insert(Rectangle pRect) {
 					 split();
 				 }
 
-				 
 				 int i = 0;
-				 while (i< objects.size()) {
-					 int index = getIndex(objects[i]);
+				 while (objects.size()>0)
+				 {
 					 
-					 if (index != -1) {						 
-						 nodes[index]->insert(objects[i]);								 
-						 objects.erase(std::begin(objects) + i);
+					 vector<int> index = getIndex(objects[i]);
+					 for (int j = 0; j < index.size(); j++)
+					 {
+						 if (index[j] != -1) {
+							 nodes[index[j]]->insert(objects[i]);
+							 objects.erase(std::begin(objects) + i);
+							 if (index.size() == 0 || objects.size() == 0)
+							 {
+								 break;
+							 }
+						 }						 
 					 }
-					 else {
-						 i++;						 
-					 }
+					 
 				 }
 			 }
 		 }
@@ -167,14 +199,18 @@ public: void insert(Rectangle pRect) {
  * Return all objects that could collide with the given object
  */
 public: vector<Rectangle> retrieve(vector<Rectangle>& returnObjects, Rectangle pRect) {
-			int index = getIndex(pRect);
-			if (index != -1 && nodes[0] != 0) {
-				nodes[index]->retrieve(returnObjects, pRect);
-			}
-			for (size_t i=0;i<objects.size();i++)
+			vector<int> index = getIndex(pRect);
+			for (int i =0;i<index.size();i++)
 			{
-				returnObjects.push_back(objects[i]);
-			}			
+				if (index[i] != -1 && nodes[0] != 0) {
+					nodes[index[i]]->retrieve(returnObjects, pRect);
+				}
+				for (size_t i = 0; i < objects.size(); i++)
+				{
+					returnObjects.push_back(objects[i]);
+				}
+			}
+						
 			return returnObjects;
 		}
 };
@@ -188,8 +224,8 @@ int main()
 	srand((int)time(0));
 
 	
-	for (int j = 10; j < 100; j = j + 5) {
-		for (int jj = 10; jj < 100; jj = jj + 5)
+	for (int j = 10; j < 100; j = j + 2) {
+		for (int jj = 10; jj < 100; jj = jj + 2)
 		{			
 			int m = rand() % 100;
 			int n = rand() % 100;
@@ -226,7 +262,9 @@ int main()
 			Vecdis.push_back(dis);
 		}
 		sort(Vecdis.begin(), Vecdis.end());
-		cout << i<<":"<<Vecdis[0] << endl;
+		cout << "max(" << i << "):" <<Vecdis.back() << endl;
+		cout << "min("<<i << "):" << Vecdis[0] << endl;
+		cout << endl;
 	}
 	system("pause");
 	return 0;
