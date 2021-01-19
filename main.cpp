@@ -106,7 +106,7 @@ private: vector<int> getIndex(Rectangle pRect) {
 			  bool endIsSouth = pRect.getY() + pRect.getHeight() < horizontalMidpoint;
 
 			  
-			  if (startIsNorth) {
+			 /* if (startIsNorth) {
 				  if (startIsWest && !endIsEast)
 				  {
 					  indexes.push_back(1);//top-left quad
@@ -150,6 +150,41 @@ private: vector<int> getIndex(Rectangle pRect) {
 			  if (startIsWest && endIsEast && !startIsNorth && !endIsSouth)
 			  {
 				  indexes.push_back(0);//in the middle
+				  indexes.push_back(1);
+				  indexes.push_back(2);
+				  indexes.push_back(3);
+			  }*/
+
+			  if (startIsNorth && endIsEast)
+			  {
+				  indexes.push_back(0);
+			  }
+			  if (startIsNorth && startIsWest)
+			  {
+				  indexes.push_back(1);
+			  }
+
+			  if (endIsSouth && endIsEast)
+			  {
+				  indexes.push_back(3);
+			  }
+			  if (endIsSouth && startIsWest)
+			  {
+				  indexes.push_back(2);
+			  }
+			  if (!startIsNorth && !endIsSouth && !endIsEast)
+			  {		
+				  indexes.push_back(1);
+				  indexes.push_back(2);
+			  }
+			  if (!startIsNorth && !endIsSouth && !startIsWest)
+			  {
+				  indexes.push_back(0);
+				  indexes.push_back(3);
+			  }
+			  if (!startIsNorth && !endIsSouth && startIsWest && endIsEast)
+			  {
+				  indexes.push_back(0);
 				  indexes.push_back(1);
 				  indexes.push_back(2);
 				  indexes.push_back(3);
@@ -231,12 +266,12 @@ int main()
 	srand((int)time(0));
 
 	
-	for (int j = 10; j < 100; j = j + 2) {
+	for (int j = 10; j < 100; j = j + 5) {
 		for (int jj = 10; jj < 100; jj = jj + 2)
 		{			
 			int m = rand() % 100;
 			int n = rand() % 100;
-			Rectangle b = Rectangle(m, n, 2, 2);
+			Rectangle b = Rectangle(m, n, 2.1, 2.01);
 			//Rectangle b = Rectangle(j, jj, 2, 2);
 			allObjects.push_back(b);
 		}
@@ -254,7 +289,9 @@ int main()
 	for (int j = 10; j < 100; j = j + 20){
 		for (int jj = 10; jj < 100; jj = jj + 20)
 		{
-			Rectangle b = Rectangle(j, jj, 2, 2);
+			int m = rand() % 100;
+			int n = rand() % 100;
+			Rectangle b = Rectangle(m, n, 1.1,1.03);
 			testObjects.push_back(b);
 		}
 	}
